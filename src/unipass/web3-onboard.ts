@@ -1,8 +1,7 @@
 import unipassModule from "@unipasswallet/web3-onboard";
 import { init } from "@web3-onboard/react";
 import { UniPassTheme } from "@unipasswallet/popup-types";
-
-const INFURA_KEY = "2896ff3d0a1143689424a8341cb75c67";
+import injectedModule from "@web3-onboard/injected-wallets";
 
 // Import the blocknative icon
 import icon from "./blocknative";
@@ -16,9 +15,11 @@ const unipass = unipassModule({
   },
 });
 
+const injected = injectedModule();
+
 export default init({
   // An array of wallet modules that you would like to be presented to the user to select from when connecting a wallet.
-  wallets: [unipass],
+  wallets: [injected, unipass],
   // An array of Chains that your app supports
   chains: [
     {
@@ -31,25 +32,25 @@ export default init({
       // used for display, eg Ethereum Mainnet
       label: "Ethereum Mainnet",
       // used for network requests
-      rpcUrl: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+      rpcUrl: `https://node.wallet.unipass.id/eth-mainnet`,
     },
     {
       id: "0x5",
       token: "GETH",
       label: "Ethereum Goerli",
-      rpcUrl: `https://goerli.infura.io/v3/${INFURA_KEY}`,
+      rpcUrl: `https://node.wallet.unipass.id/eth-goerli`,
     },
     {
       id: "0x89",
       token: "MATIC",
       label: "Matic Mainnet",
-      rpcUrl: "https://matic-mainnet.chainstacklabs.com",
+      rpcUrl: "https://node.wallet.unipass.id/polygon-mainnet",
     },
     {
       id: "0x13881",
       token: "MATIC",
       label: "Matic Mumbai",
-      rpcUrl: "https://matic-mumbai.chainstacklabs.com",
+      rpcUrl: "https://node.wallet.unipass.id/polygon-mumbai",
     },
   ],
   appMetadata: {
