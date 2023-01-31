@@ -14,7 +14,10 @@
     "@web3-onboard/common": "^2.2.3",
     "@web3-onboard/injected-wallets": "^2.6.1",
     "@web3-onboard/react": "^2.4.1",
+    "@web3-onboard/walletconnect": "^2.2.2",
     "antd": "^5.1.4",
+    "ethers": "^5.7.2",
+    "siwe": "^1.1.6",
     "umi": "^4.0.42"
   },
   "devDependencies": {

@@ -2,6 +2,7 @@ import unipassModule from "@unipasswallet/web3-onboard";
 import { init } from "@web3-onboard/react";
 import { UniPassTheme } from "@unipasswallet/popup-types";
 import injectedModule from "@web3-onboard/injected-wallets";
+import walletConnectModule from "@web3-onboard/walletconnect";
 
 // Import the blocknative icon
 import icon from "./blocknative";
@@ -16,36 +17,20 @@ const unipass = unipassModule({
 });
 
 const injected = injectedModule();
+const walletConnect = walletConnectModule();
 
 export default init({
   // An array of wallet modules that you would like to be presented to the user to select from when connecting a wallet.
-  wallets: [injected, unipass],
+  wallets: [injected, walletConnect, unipass],
   // An array of Chains that your app supports
   chains: [
-    {
-      // hex encoded string, eg '0x1' for Ethereum Mainnet
-      id: "0x1",
-      // string indicating chain namespace. Defaults to 'evm' but will allow other chain namespaces in the future
-      namespace: "evm",
-      // the native token symbol, eg ETH, BNB, MATIC
-      token: "ETH",
-      // used for display, eg Ethereum Mainnet
-      label: "Ethereum Mainnet",
-      // used for network requests
-      rpcUrl: `https://node.wallet.unipass.id/eth-mainnet`,
-    },
     {
       id: "0x5",
       token: "GETH",
       label: "Ethereum Goerli",
       rpcUrl: `https://node.wallet.unipass.id/eth-goerli`,
     },
-    {
-      id: "0x89",
-      token: "MATIC",
-      label: "Matic Mainnet",
-      rpcUrl: "https://node.wallet.unipass.id/polygon-mainnet",
-    },
+
     {
       id: "0x13881",
       token: "MATIC",

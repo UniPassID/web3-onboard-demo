@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { SiweMessage } from "siwe";
 import { ethers } from "ethers";
 import { useConnectWallet } from "@web3-onboard/react";
 import { Button, Divider, Input } from "antd";
 import { etherToWei, weiToEther } from "@/unipass/format_bignumber";
 import logo from "../assets/UniPass.svg";
+import { verifySiweMessage } from "@/unipass/verify_message";
 
 const { TextArea } = Input;
 
@@ -14,6 +16,8 @@ function App() {
   const [balance, setBalance] = useState("0");
   const [chainId, setChainId] = useState(0);
   const [signature, setSignature] = useState("");
+  const [siweMessage, setSiweMessage] = useState("");
+  const [siweSignature, setSiweSignature] = useState("");
   const [typedSignature, setTypedSignature] = useState("");
   const [nativeHash, setNativeHash] = useState("");
 
@@ -128,7 +132,14 @@ function App() {
     if (wallet?.label) {
       return (
         <Button
-          onClick={() => disconnect({ label: wallet?.label || "" })}
+          onClick={() => {
+            disconnect({ label: wallet?.label || "" });
+            setBalance("0");
+            setChainId(0);
+            setSignature("");
+            setTypedSignature("");
+            setNativeHash("");
+          }}
           type="dashed"
         >
           Disconnect
@@ -140,6 +151,32 @@ function App() {
         Connect
       </Button>
     );
+  };
+
+  const signWithEthereum = async () => {
+    if (provider && wallet?.accounts[0]?.address) {
+      const siweMessage = createSiweMessage(
+        wallet.accounts[0].address,
+        "This is a test statement."
+      );
+      const signer = provider.getSigner();
+      const _signature = await signer.signMessage(siweMessage);
+      setSiweMessage(siweMessage);
+      setSiweSignature(_signature);
+    }
+  };
+
+  const createSiweMessage = (address: string, statement: string) => {
+    const { host, origin } = window.location;
+    const siweMessage = new SiweMessage({
+      domain: host,
+      address,
+      statement,
+      uri: origin,
+      version: "1",
+      chainId,
+    });
+    return siweMessage.prepareMessage();
   };
 
   return (
@@ -168,6 +205,27 @@ function App() {
       <h4>signature:</h4>
       <TextArea rows={4} value={signature} />
       <Divider />
+      <h3>Sign With Ethereum:</h3>
+      <Button
+        type="primary"
+        disabled={!wallet}
+        onClick={signWithEthereum}
+        style={{ marginRight: "30px" }}
+      >
+        Sign With Ethereum
+      </Button>
+      <h4>siwe signature:</h4>
+      <TextArea rows={4} value={siweSignature} />
+      <Button
+        type="primary"
+        disabled={!siweSignature}
+        onClick={() => verifySiweMessage(siweMessage, siweSignature, provider!)}
+        style={{ marginRight: "30px", marginTop: "20px" }}
+      >
+        Verify Signature
+      </Button>
+
+      <Divider />
       <Button type="primary" onClick={signTypedData} disabled={!wallet}>
         Sign Typed Data(EIP-712)
       </Button>
@@ -179,7 +237,7 @@ function App() {
         Send native Token
       </Button>
       <h4>native tx hash:</h4>
-      <TextArea rows={1} value={nativeHash} />
+      <TextArea rows={2} value={nativeHash} />
       <Divider />
     </div>
   );
