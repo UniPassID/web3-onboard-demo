@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { SiweMessage } from "siwe";
 import { ethers } from "ethers";
 import { useConnectWallet } from "@web3-onboard/react";
-import { Button, Divider, Input } from "antd";
+import { Button, Divider, Input, message } from "antd";
 import { etherToWei, weiToEther } from "@/unipass/format_bignumber";
 import logo from "../assets/UniPass.svg";
 import { verifySiweMessage } from "@/unipass/verify_message";
@@ -20,6 +20,7 @@ function App() {
   const [siweSignature, setSiweSignature] = useState("");
   const [typedSignature, setTypedSignature] = useState("");
   const [nativeHash, setNativeHash] = useState("");
+  const [sendNativeLoading, setSendNativeLoading] = useState(false);
 
   useEffect(() => {
     if (wallet?.provider) {
@@ -112,19 +113,26 @@ function App() {
 
   const sendTransaction = async () => {
     if (provider && wallet?.accounts[0]?.address) {
-      const signer = provider.getSigner();
-      const txParams = {
-        from: wallet.accounts[0].address,
-        to: "0x2B6c74b4e8631854051B1A821029005476C3AF06",
-        value: etherToWei("0.001"),
-        data: "0x",
-      };
-      console.log(txParams);
-
-      const txResp = await signer.sendTransaction(txParams);
-      const res = await txResp.wait();
-      console.log(res);
-      setNativeHash(res.transactionHash);
+      try {
+        setSendNativeLoading(true);
+        const signer = provider.getSigner();
+        const txParams = {
+          from: wallet.accounts[0].address,
+          to: "0x2B6c74b4e8631854051B1A821029005476C3AF06",
+          value: etherToWei("0.001"),
+          data: "0x",
+        };
+        const txResp = await signer.sendTransaction(txParams);
+        const res = await txResp.wait();
+        console.log(res);
+        setNativeHash(res.transactionHash);
+      } catch (e: any) {
+        message.error(
+          `send transaction error: ${e?.message || "unknown error"}`
+        );
+      } finally {
+        setSendNativeLoading(false);
+      }
     }
   };
 
@@ -139,6 +147,7 @@ function App() {
             setSignature("");
             setTypedSignature("");
             setNativeHash("");
+            setSendNativeLoading(false);
           }}
           type="dashed"
         >
@@ -233,7 +242,12 @@ function App() {
       <TextArea rows={4} value={typedSignature} />
       <Divider />
       <h3>Send Transaction:</h3>
-      <Button onClick={sendTransaction} type="primary" disabled={!wallet}>
+      <Button
+        onClick={sendTransaction}
+        type="primary"
+        disabled={!wallet}
+        loading={sendNativeLoading}
+      >
         Send native Token
       </Button>
       <h4>native tx hash:</h4>
