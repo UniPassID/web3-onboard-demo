@@ -10,7 +10,7 @@
     "start": "npm run dev"
   },
   "dependencies": {
-    "@unipasswallet/web3-onboard": "0.0.1-alpha.6",
+    "@unipasswallet/web3-onboard": "^1.0.1",
     "@web3-onboard/common": "^2.2.3",
     "@web3-onboard/injected-wallets": "^2.6.1",
     "@web3-onboard/react": "^2.4.1",
